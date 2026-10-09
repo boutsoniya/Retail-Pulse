@@ -38,7 +38,10 @@ def apply_filters(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def records(frame: pd.DataFrame) -> list[dict]:
-    clean = frame.replace([float("inf"), float("-inf")], 0).fillna(0)
+    clean = frame.copy()
+    for column in clean.select_dtypes(include="category").columns:
+        clean[column] = clean[column].astype(object)
+    clean = clean.replace([float("inf"), float("-inf")], 0).fillna(0)
     return [{k: (v.item() if hasattr(v, "item") else v) for k, v in row.items()}
             for row in clean.to_dict(orient="records")]
 
